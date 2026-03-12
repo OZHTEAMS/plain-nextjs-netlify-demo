@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic"; // This disables SSG and ISR
 
 import Form from "next/form";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
