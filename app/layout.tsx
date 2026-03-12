@@ -3,8 +3,8 @@ import "./globals.css";
 import Header from "./Header";
 
 export const metadata = {
-  title: "Superblog",
-  description: "A blog app using Next.js and Prisma",
+  title: "Venezuelan Wealth",
+  description: "Inteligencia financiera para el venezolano que construye su futuro.",
 };
 
 export default function RootLayout({
@@ -13,8 +13,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full">
-      <body className="h-full overflow-hidden">
+    <html lang="es" className="h-full">
+      <body className="h-full overflow-hidden bg-[#0F1F38]">
         <div className="min-h-screen flex flex-col">
           <Header />
           <main className="flex-1 overflow-auto">{children}</main>

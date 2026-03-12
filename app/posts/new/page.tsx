@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic"; // This disables SSG and ISR
+export const dynamic = "force-dynamic";
 
 import Form from "next/form";
 import { prisma } from "@/lib/prisma";
@@ -9,77 +9,108 @@ export default function NewPost() {
   async function createPost(formData: FormData) {
     "use server";
 
-    const authorEmail = (formData.get("authorEmail") as string) || undefined;
     const title = formData.get("title") as string;
     const content = formData.get("content") as string;
-
-    const postData = authorEmail
-      ? {
-          title,
-          content,
-          author: {
-            connect: {
-              email: authorEmail,
-            },
-          },
-        }
-      : {
-          title,
-          content,
-        };
+    const category = formData.get("category") as string;
+    const rawSlug = formData.get("slug") as string;
+    // Sanitize slug: lowercase, replace spaces/special chars with hyphens
+    const slug = rawSlug
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\-]/g, "-")
+      .replace(/-+/g, "-");
 
     await prisma.post.create({
-      data: postData,
+      data: { title, content, category, slug, published: true },
     });
 
-    revalidatePath("/posts");
-    redirect("/posts");
+    revalidatePath("/");
+    redirect("/");
   }
 
+  const inputClass =
+    "w-full px-4 py-2 bg-[#0F1F38] border border-white/20 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-[#C9A84C]";
+  const labelClass = "block text-sm font-semibold text-slate-300 mb-2 uppercase tracking-wider";
+
   return (
-    <div className="max-w-2xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Create New Post</h1>
-      <Form action={createPost} className="space-y-6">
-        <div>
-          <label htmlFor="title" className="flex text-lg font-medium mb-2 items-center">
-            Title 
-            <span className="ml-2 px-2 py-1 text-xs font-semibold text-white bg-gray-500 rounded-lg">
-              Required
-            </span>
-          </label>
-          <input
-            type="text"
-            id="title"
-            name="title"
-            required
-            placeholder="Enter your post title ..."
-            className="w-full px-4 py-2 border rounded-lg"
-          />
-        </div>
-        <div>
-          <label htmlFor="content" className="block text-lg font-medium mb-2">Content</label>
-          <textarea
-            id="content"
-            name="content"
-            placeholder="Write your post content here ..."
-            rows={6}
-            className="w-full px-4 py-2 border rounded-lg"
-          />
-        </div>
-        <div>
-          <label htmlFor="authorEmail" className="block text-lg font-medium mb-2">Author</label>
-          <input
-            type="text"
-            id="authorEmail"
-            name="authorEmail"
-            placeholder="Enter the email of the author here ..."
-            className="w-full px-4 py-2 border rounded-lg"
-          />
-        </div>
-        <button type="submit" className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600">
-          Create Post
-        </button>
-      </Form>
+    <div className="min-h-screen bg-[#0F1F38] py-16 px-6">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-3xl font-extrabold text-white mb-2">
+          Nuevo <span className="text-[#C9A84C]">Artículo</span>
+        </h1>
+        <p className="text-slate-400 mb-10 text-sm">
+          Publica contenido de inteligencia financiera.
+        </p>
+
+        <Form action={createPost} className="space-y-6">
+          <div>
+            <label htmlFor="title" className={labelClass}>
+              Título <span className="text-[#C9A84C]">*</span>
+            </label>
+            <input
+              type="text"
+              id="title"
+              name="title"
+              required
+              placeholder="Ej: Cómo invertir en dólares desde Venezuela"
+              className={inputClass}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="category" className={labelClass}>
+              Categoría <span className="text-[#C9A84C]">*</span>
+            </label>
+            <select
+              id="category"
+              name="category"
+              required
+              className={inputClass}
+            >
+              <option value="">Selecciona una categoría</option>
+              <option value="Economía">Economía</option>
+              <option value="Inversión">Inversión</option>
+              <option value="Noticias">Noticias</option>
+              <option value="Criptomonedas">Criptomonedas</option>
+              <option value="Divisas">Divisas</option>
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="slug" className={labelClass}>
+              Slug (URL) <span className="text-[#C9A84C]">*</span>
+            </label>
+            <input
+              type="text"
+              id="slug"
+              name="slug"
+              required
+              placeholder="ej: como-invertir-en-dolares"
+              className={inputClass}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="content" className={labelClass}>
+              Contenido
+            </label>
+            <textarea
+              id="content"
+              name="content"
+              placeholder="Escribe el contenido del artículo aquí..."
+              rows={8}
+              className={inputClass}
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-[#C9A84C] text-[#0A1628] py-3 rounded-lg font-bold hover:bg-yellow-400 transition-colors"
+          >
+            Publicar Artículo
+          </button>
+        </Form>
+      </div>
     </div>
   );
 }

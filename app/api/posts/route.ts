@@ -12,7 +12,6 @@ export async function GET(request: Request) {
     skip: offset,
     take: postsPerPage,
     orderBy: { createdAt: "desc" },
-    include: { author: { select: { name: true } } },
   });
 
   const totalPosts = await prisma.post.count();
