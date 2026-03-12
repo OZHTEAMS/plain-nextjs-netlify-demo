@@ -7,9 +7,10 @@
     "build": "npx prisma migrate deploy || [ \"$DATABASE_URL\" = \"prisma+postgres://accelerate.prisma-data.net/?api_key=API_KEY\" ] && next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "npx prisma generate --no-engine 2>/dev/null || true"
+    "postinstall": "( npx prisma generate 2>/dev/null || true ) || npx prisma generate --no-engine 2>/dev/null || true"
   },
   "dependencies": {
+    "@prisma/client": "^6.19.2",
     "@prisma/extension-accelerate": "^1.2.1",
     "next": "15.1.7",
     "react": "^19.0.0",
