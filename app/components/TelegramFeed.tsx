@@ -1,10 +1,45 @@
 "use client";
 
-export default function TelegramFeed({ channel }: { channel: string }) {
+import { useEffect, useRef } from "react";
+
+interface Props {
+  channel: string;
+  /** ID of any post in your channel, e.g. 5. Defaults to 1. */
+  postId?: number;
+}
+
+/**
+ * Uses the official Telegram post-embed widget (telegram-widget.js).
+ * Much lighter than an iframe — the script is loaded lazily after
+ * the page is interactive and does NOT block rendering.
+ */
+export default function TelegramFeed({ channel, postId = 1 }: Props) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    // Clear any previous widget (e.g. on hot-reload)
+    el.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://telegram.org/js/telegram-widget.js?22";
+    script.async = true;
+    script.setAttribute("data-telegram-post", `${channel}/${postId}`);
+    script.setAttribute("data-width", "100%");
+    script.setAttribute("data-dark", "1");
+    script.setAttribute("data-color", "C9A84C");
+    el.appendChild(script);
+
+    return () => {
+      el.innerHTML = "";
+    };
+  }, [channel, postId]);
+
   return (
-    <div className="bg-[#1B2D3F] rounded-xl border border-white/5 overflow-hidden flex flex-col">
+    <div className="bg-[#1B2D3F] rounded-xl border border-white/5 overflow-hidden">
       <div className="px-6 py-4 border-b border-white/10 flex items-center gap-2">
-        {/* Telegram icon */}
         <svg
           className="w-5 h-5 text-[#2AABEE]"
           fill="currentColor"
@@ -22,12 +57,8 @@ export default function TelegramFeed({ channel }: { channel: string }) {
           @{channel} →
         </a>
       </div>
-      <iframe
-        src={`https://t.me/s/${channel}`}
-        className="w-full flex-1 border-0 min-h-[480px]"
-        title={`Canal Telegram @${channel}`}
-        sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-      />
+      {/* Widget script renders here — no iframe, no main-thread blocking */}
+      <div ref={containerRef} className="px-4 py-4 min-h-[120px]" />
     </div>
   );
 }

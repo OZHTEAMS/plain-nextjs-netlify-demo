@@ -94,10 +94,16 @@ export default async function Home() {
             <RssFeed />
           </Suspense>
 
-          <TwitterWidget
-            account={process.env.TWITTER_ACCOUNT ?? "bbcmundo"}
-            height={480}
-          />
+          <Suspense
+            fallback={
+              <div className="bg-[#1B2D3F] rounded-xl border border-white/5 h-64 animate-pulse" />
+            }
+          >
+            <TwitterWidget
+              account={process.env.TWITTER_ACCOUNT ?? "bbcmundo"}
+              height={480}
+            />
+          </Suspense>
         </div>
 
         {/* Video Hub — full width */}
@@ -110,9 +116,16 @@ export default async function Home() {
         </Suspense>
 
         {/* Telegram — full width */}
-        <TelegramFeed
-          channel={process.env.TELEGRAM_CHANNEL ?? "venezuelanwealth"}
-        />
+        <Suspense
+          fallback={
+            <div className="bg-[#1B2D3F] rounded-xl border border-white/5 h-40 animate-pulse" />
+          }
+        >
+          <TelegramFeed
+            channel={process.env.TELEGRAM_CHANNEL ?? "venezuelanwealth"}
+            postId={Number(process.env.TELEGRAM_POST_ID ?? "1")}
+          />
+        </Suspense>
       </section>
     </div>
   );
