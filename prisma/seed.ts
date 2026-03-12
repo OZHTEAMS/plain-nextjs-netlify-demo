@@ -3,6 +3,33 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
+  await prisma.successStory.createMany({
+    skipDuplicates: true,
+    data: [
+      {
+        nombre: 'Daniela Rivas',
+        bio: 'Fundadora de una startup fintech en Madrid enfocada en pagos transfronterizos para latinoamericanos.',
+        categoria: 'Tecnologia',
+        linkedin_url: 'https://www.linkedin.com/in/daniela-rivas',
+        image_url: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=1200&q=80',
+      },
+      {
+        nombre: 'Luis Andrade',
+        bio: 'Director de operaciones en una firma de inversion en Miami con foco en mercados emergentes.',
+        categoria: 'Finanzas',
+        linkedin_url: 'https://www.linkedin.com/in/luis-andrade',
+        image_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=1200&q=80',
+      },
+      {
+        nombre: 'Carla Mendez',
+        bio: 'Economista y conferencista en Bogota, asesora a pymes venezolanas para expandirse en la region andina.',
+        categoria: 'Economia',
+        linkedin_url: 'https://www.linkedin.com/in/carla-mendez',
+        image_url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=1200&q=80',
+      },
+    ],
+  });
+
   await prisma.post.createMany({
     skipDuplicates: true,
     data: [
@@ -44,7 +71,7 @@ async function main() {
     ],
   });
 
-  console.log('Seeding completado: 5 artículos de Venezuelan Wealth creados.');
+  console.log('Seeding completado: posts y success stories creados.');
 }
 
 main()

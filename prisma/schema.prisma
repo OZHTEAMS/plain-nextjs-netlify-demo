@@ -16,3 +16,13 @@ model Post {
   published Boolean  @default(false)
   createdAt DateTime @default(now())
 }
+
+model SuccessStory {
+  id           String   @id @default(cuid())
+  nombre       String
+  bio          String   @db.Text
+  categoria    String
+  linkedin_url String?
+  image_url    String?
+  createdAt    DateTime @default(now())
+}

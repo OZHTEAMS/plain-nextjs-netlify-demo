@@ -6,8 +6,8 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import RssFeed from "./components/RssFeed";
 import VideoHub from "./components/VideoHub";
-import TelegramFeed from "./components/TelegramFeed";
-import TwitterWidget from "./components/TwitterWidget";
+import TelegramChannel from "./components/TelegramChannel";
+import TwitterFeed from "./components/TwitterFeed";
 
 export default async function Home() {
   if (
@@ -99,7 +99,7 @@ export default async function Home() {
               <div className="bg-[#1B2D3F] rounded-xl border border-white/5 h-64 animate-pulse" />
             }
           >
-            <TwitterWidget
+            <TwitterFeed
               account={process.env.TWITTER_ACCOUNT ?? "bbcmundo"}
               height={480}
             />
@@ -121,8 +121,8 @@ export default async function Home() {
             <div className="bg-[#1B2D3F] rounded-xl border border-white/5 h-40 animate-pulse" />
           }
         >
-          <TelegramFeed
-            channel={process.env.TELEGRAM_CHANNEL ?? "venezuelanwealth"}
+          <TelegramChannel
+            channel={process.env.TELEGRAM_CHANNEL ?? "venezuelaventures"}
             postId={Number(process.env.TELEGRAM_POST_ID ?? "1")}
           />
         </Suspense>

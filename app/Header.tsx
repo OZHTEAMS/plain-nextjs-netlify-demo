@@ -44,6 +44,12 @@ export default function Header() {
               Nuevo Artículo
             </Link>
             <Link
+              href="/success-stories"
+              className="text-slate-300 hover:text-[#C9A84C] transition-colors text-sm"
+            >
+              Venezolanos en el Mundo
+            </Link>
+            <Link
               href="/users/new"
               className="bg-[#C9A84C] text-[#0A1628] px-4 py-2 rounded-lg text-sm font-semibold hover:bg-yellow-400 transition-colors"
             >

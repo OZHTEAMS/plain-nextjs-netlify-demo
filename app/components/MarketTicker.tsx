@@ -1,125 +1,70 @@
-// Server Component — revalida cada 5 minutos
+"use client";
 
-interface CryptoPrice {
-  usd: number;
-  usd_24h_change: number;
-}
-interface CryptoData {
-  bitcoin: CryptoPrice;
-  ethereum: CryptoPrice;
-}
-interface VeDolarRate {
-  fuente: string;
-  nombre: string;
-  compra: number;
-  venta: number;
-}
+import useSWR from "swr";
 
-async function fetchMarketData() {
-  const [cryptoRes, dolarRes] = await Promise.allSettled([
-    fetch(
-      "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true",
-      { next: { revalidate: 300 } }
-    ),
-    fetch("https://ve.dolarapi.com/v1/dolares", {
-      next: { revalidate: 300 },
-    }),
-  ]);
+type TickerItem = {
+  symbol: string;
+  name: string;
+  price: number;
+  changePercent: number;
+};
 
-  const crypto =
-    cryptoRes.status === "fulfilled" && cryptoRes.value.ok
-      ? ((await cryptoRes.value.json()) as CryptoData)
-      : null;
+type TickerResponse = {
+  items: TickerItem[];
+};
 
-  const dolar =
-    dolarRes.status === "fulfilled" && dolarRes.value.ok
-      ? ((await dolarRes.value.json()) as VeDolarRate[])
-      : null;
+const fetcher = async (url: string): Promise<TickerResponse> => {
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error("No se pudo cargar el ticker");
+  }
+  return res.json();
+};
 
-  return { crypto, dolar };
-}
+function TickerCard({ item }: { item: TickerItem }) {
+  const positive = item.changePercent >= 0;
 
-function TickerItem({
-  label,
-  value,
-  change,
-}: {
-  label: string;
-  value: string;
-  change?: number;
-}) {
-  const isPositive = (change ?? 0) >= 0;
   return (
-    <div className="flex items-center gap-2 px-5 py-2 border-r border-white/10 last:border-0 shrink-0">
+    <div className="flex items-center gap-2 px-5 py-2 border-r border-white/10 shrink-0">
       <span className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">
-        {label}
+        {item.name}
       </span>
-      <span className="text-white text-xs font-bold">{value}</span>
-      {change !== undefined && (
-        <span
-          className={`text-[10px] font-bold ${
-            isPositive ? "text-emerald-400" : "text-red-400"
-          }`}
-        >
-          {isPositive ? "▲" : "▼"} {Math.abs(change).toFixed(2)}%
-        </span>
-      )}
+      <span className="text-white text-xs font-bold">${item.price.toFixed(2)}</span>
+      <span
+        className={`text-[10px] font-bold ${
+          positive ? "text-emerald-400" : "text-red-400"
+        }`}
+      >
+        {positive ? "▲" : "▼"} {Math.abs(item.changePercent).toFixed(2)}%
+      </span>
     </div>
   );
 }
 
-export default async function MarketTicker() {
-  try {
-    const { crypto, dolar } = await fetchMarketData();
+export default function MarketTicker() {
+  const { data } = useSWR("/api/market-ticker", fetcher, {
+    refreshInterval: 60_000,
+    revalidateOnFocus: false,
+  });
 
-    const paralelo = dolar?.find(
-      (d) =>
-        d.fuente === "EnParaleloVzla" ||
-        d.nombre?.toLowerCase().includes("paralelo")
-    );
-    const bcv = dolar?.find(
-      (d) =>
-        d.fuente === "BCV" || d.nombre?.toLowerCase().includes("bcv")
-    );
+  const items = data?.items ?? [];
+  if (items.length === 0) return null;
 
-    if (!crypto && !dolar) return null;
+  // Duplicate sequence for seamless infinite marquee
+  const loop = [...items, ...items];
 
-    return (
-      <div className="w-full bg-[#060E1A] border-b border-[#C9A84C]/20 overflow-x-auto">
-        <div className="flex items-center min-w-max">
-          <span className="text-[#C9A84C] text-[9px] font-black uppercase tracking-[0.3em] px-4 shrink-0 border-r border-white/10 py-2">
-            Mercados
-          </span>
-          {crypto && (
-            <>
-              <TickerItem
-                label="BTC"
-                value={`$${crypto.bitcoin.usd.toLocaleString("en-US")}`}
-                change={crypto.bitcoin.usd_24h_change}
-              />
-              <TickerItem
-                label="ETH"
-                value={`$${crypto.ethereum.usd.toLocaleString("en-US")}`}
-                change={crypto.ethereum.usd_24h_change}
-              />
-            </>
-          )}
-          {bcv && (
-            <TickerItem
-              label="USD/VES BCV"
-              value={`Bs. ${bcv.venta.toLocaleString("es-VE")}`}
-            />
-          )}
-          {paralelo && (
-            <TickerItem
-              label="USD Paralelo"
-              value={`Bs. ${paralelo.venta.toLocaleString("es-VE")}`}
-            />
-          )}
+  return (
+    <div className="w-full bg-[#060E1A] border-b border-[#C9A84C]/20 overflow-hidden">
+      <div className="flex items-center">
+        <span className="text-[#C9A84C] text-[9px] font-black uppercase tracking-[0.3em] px-4 shrink-0 border-r border-white/10 py-2">
+          Mercados
+        </span>
+        <div className="ticker-track">
+          {loop.map((item, i) => (
+            <TickerCard key={`${item.symbol}-${i}`} item={item} />
+          ))}
         </div>
       </div>
-    );
-  } catch {
-    return null;
-  }
+    </div>
+  );
 }
