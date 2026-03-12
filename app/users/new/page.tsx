@@ -1,6 +1,5 @@
-export const dynamic = "force-dynamic"; // This disables SSG and ISR
+export const dynamic = "force-dynamic";
 
-import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Form from "next/form";
 
@@ -11,9 +10,9 @@ export default function NewUser() {
     const name = formData.get("name") as string;
     const email = formData.get("email") as string;
 
-    await prisma.user.create({
-      data: { name, email },
-    });
+    // User model was removed from the schema.
+    // Placeholder: implement your own user logic here if needed.
+    console.log("createUser called", { name, email });
 
     redirect("/");
   }

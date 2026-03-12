@@ -3,6 +3,11 @@ export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
+import RssFeed from "./components/RssFeed";
+import VideoHub from "./components/VideoHub";
+import TelegramFeed from "./components/TelegramFeed";
+import TwitterWidget from "./components/TwitterWidget";
 
 export default async function Home() {
   if (
@@ -75,6 +80,39 @@ export default async function Home() {
             ))}
           </div>
         )}
+      </section>
+
+      {/* ── Widgets row ─────────────────────────────── */}
+      <section className="px-6 py-12 max-w-6xl mx-auto space-y-10">
+        {/* RSS + Twitter side by side */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Suspense
+            fallback={
+              <div className="bg-[#1B2D3F] rounded-xl border border-white/5 h-64 animate-pulse" />
+            }
+          >
+            <RssFeed />
+          </Suspense>
+
+          <TwitterWidget
+            account={process.env.TWITTER_ACCOUNT ?? "bbcmundo"}
+            height={480}
+          />
+        </div>
+
+        {/* Video Hub — full width */}
+        <Suspense
+          fallback={
+            <div className="bg-[#1B2D3F] rounded-xl border border-white/5 h-64 animate-pulse" />
+          }
+        >
+          <VideoHub />
+        </Suspense>
+
+        {/* Telegram — full width */}
+        <TelegramFeed
+          channel={process.env.TELEGRAM_CHANNEL ?? "venezuelanwealth"}
+        />
       </section>
     </div>
   );

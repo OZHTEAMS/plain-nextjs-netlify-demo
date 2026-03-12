@@ -1,6 +1,8 @@
 // app/layout.tsx
 import "./globals.css";
 import Header from "./Header";
+import MarketTicker from "./components/MarketTicker";
+import { Suspense } from "react";
 
 export const metadata = {
   title: "Venezuelan Wealth",
@@ -17,6 +19,9 @@ export default function RootLayout({
       <body className="h-full overflow-hidden bg-[#0F1F38]">
         <div className="min-h-screen flex flex-col">
           <Header />
+          <Suspense fallback={null}>
+            <MarketTicker />
+          </Suspense>
           <main className="flex-1 overflow-auto">{children}</main>
         </div>
       </body>
